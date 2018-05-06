@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html >
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <style>
+  .material-icons {vertical-align:-14%}
+  </style>
+
+
+<!--header-->
+
+<header class="w3-bar w3-green w3-large" class="fixed">
+  <a href="index.html" class="w3-bar-item w3-button w3-green w3-mobile"><img src="images/logo.png"></i></a>
+  <br><br><h1>  Reviews</h1>
+  <a href="#reviewForm" class="w3-bar-item w3-button w3-right w3-green w3-mobile">Leave a Review</a>
+</header>
+
+
+<style>
+table, th , td  {
+  border: 1px solid grey;
+  border-collapse: collapse;
+  padding: 5px;
+  width: 100%;
+}
+
+table tr:nth-child(odd) {
+  background-color: #D3D3D3;
+}
+table tr:nth-child(even) {
+  background-color: #ffffff;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<body>
+ 
+<div ng-app="myApp">
+
+<hr />
+
+<!-- reviews table -->
+<div ng-controller="r_controller">
+  <table>
+    <tr ng-repeat="x in names">Patient Reviews
+      <td><p><i class="material-icons">person</i>{{ x.PatientUsername }} <br> Date: {{ x.date }} <br> Facility Visited: {{ x.facility_name }} <br> Doctor Seen: {{ x.doctor_visited }} <br> Review: {{ x.comment }}</p></td>
+    </tr>
+  </table>
+</div>
+
+<hr />
+<!-- Leave a review here -->
+<div ng-controller="c_controller">
+  <div class="w3-container" id="reviewForm"> 
+  <h1><strong>Leave a Review!</strong></h1>   
+  <form class="form-group">
+     Patient Username:<br>
+    <input type="text" class="form-control" ng-model="PatientUsername" required>
+    <br>
+    Date:<br>
+    <input type="date(Y/m/d)" class="form-control" ng-model="date" placeholder="mm/dd/yyyy" required><br>
+    Facility Name:<br>
+    <input type="text" class="form-control" ng-model="facility_name" required><br>
+    Doctor Visited:<br>
+    <input type="text" class="form-control" ng-model="doctor_visited" required><br>
+    Comment:<br>
+    <input type="text" class="form-control" ng-model="comment" required><br>
+    <br>
+    <button type="submit" class="w3-button w3-green w3-third" ng-click="save()" onclick="getElementById('ReviewThankYou').style.display='block'"">Submit Review</button>
+  </form>
+  <br><br>
+  <p>PatientUsername:{{PatientUsername}} <br> date:{{date}} <br>facility_name:{{facility_name}} <br>doctor_visited:{{doctor_visited}} <br>comment:{{comment}} <br>return results:{{results}}</p>
+</div>
+
+</div>
+ 
+
+<script>
+  /*post and get the reviews*/
+var app = angular.module('myApp', []);
+app.controller('r_controller', function($scope, $http) {
+   $http.get("mysql/review")
+   .then(function (response) {
+      $scope.names = response.data;
+      // console.log(response.data);
+  });
+});
+
+app.controller('c_controller', function($scope, $http) {
+  $scope.save = function () {
+    $http.post("mysql/review", {"PatientUsername": $scope.PatientUsername, "date": $scope.date, "facility_name": $scope.facility_name, "doctor_visited": $scope.doctor_visited, "comment": $scope.comment})
+    .then(function (response) {
+        // $scope.added = response.data;
+        $scope.results = response.data;
+        console.log(response.data);
+    });
+  }    
+});
+</script>
+
+<!--Review Thank You-->
+<div id="ReviewThankYou" class="w3-modal">
+  <div class="w3-modal-content w3-animate-zoom w3-padding-large">
+    <div class="w3-container w3-white w3-center">
+      <i onclick="document.getElementById('ReviewThankYou').style.display='none'" class="fa fa-remove w3-button w3-xlarge w3-right w3-transparent"></i>
+      <h1>Thank You for Your Feedback!</h1>
+    </div>
+   </div>
+  </div>  
+ 
+</body>
+</html>
+
+

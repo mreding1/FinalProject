@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html >
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+  <!--header-->
+<header class="w3-bar w3-green w3-large" class="fixed">
+  <a href="index.html" class="w3-bar-item w3-button w3-green w3-mobile"><img src="images/logo.png"></i></a>
+<br><br><h1>  Make  an Appointment</h1>
+</header>
+
+
+<style>
+table, th , td  {
+  border: 1px solid grey;
+  border-collapse: collapse;
+  padding: 5px;
+}
+table tr:nth-child(odd) {
+  background-color: #f1f1f1;
+}
+table tr:nth-child(even) {
+  background-color: #ffffff;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<body>
+ 
+<div ng-app="myApp">
+
+<hr />
+
+<!-- search zipcode --> 
+<div ng-controller="r_controller">
+  <div class="w3-container" id="reviewForm"> 
+  <h1><strong>Search for a Facility!</strong></h1>   
+  <form class="form-group">
+    Zipcode:<br>
+    <input type="number" style="width:40%" class="form-control" ng-model="facility_zipcode" required><br>
+    <br>
+    <button type="search" class="w3-button w3-green w3-third" ng-click="search()">Search</button>
+  </form>
+  <br><br>
+  <p>facility_zipcode:{{facility_zipcode}} <br>return results:{{results}}</p>
+
+
+<!--google map-->
+<div id="map" style="width:50%;height:400px; float: right;">
+  <h3>Find the right location for you!</h3>
+  <script>
+  function myMap() {
+  var mapOptions = {
+      center: new google.maps.LatLng(35.940402, -83.942959),
+      zoom: 14
+  }
+  var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+  }
+  </script>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDf-zEqCfVJiqIMxghh14XwPfXfPtSddrs&callback=myMap"></script>
+</div>
+
+
+<!-- outputted table with locations-->
+<table>
+    <tr ng-repeat="x in names">Locations Near You
+      <td><p><input type="checkbox" id="myCheck" onclick="myFunction()">
+        {{ x.facility_name }} <br> 
+        {{ x.facility_street }} <br> 
+        {{x.facility_city}} {{x.facility_state}} {{x.facility_zipcode}} <br> {{x.facility_website}} </p>
+        <p id="text" style="display:none">Now Scroll Down to Schedule a Date and Time!</p>
+    </tr></td>
+  </table>
+
+
+</div>
+
+<hr>
+<!-- schedule the appointment -->
+<div class="w3-container" id="makeappointment" ng-controller="a_controller">
+  <h2></h2>
+    <p><h5>Select a Date</h5></p>
+    <p><input class="w3-input w3-border" type="date(Y/md/)" placeholder="mm/dd/yyyy" ng-model="appointment_date"></p>
+    <p><h5>Select a Time</h5></p>
+    <p><input class="w3-input w3-border" type="time" ng-model="appointment_time"></p>
+    <button type="submit" onclick="document.getElementById('AppointmentThankYou').style.display='block'" class="w3-button w3-padding-large w3-green w3-margin-bottom">Make Appointment</a>
+  </div>
+  <hr>
+
+  <div id="AppointmentThankYou" class="w3-modal">
+  <div class="w3-modal-content w3-animate-zoom w3-padding-large">
+    <div class="w3-container w3-white w3-center">
+      <i onclick="document.getElementById('AppointmentThankYou').style.display='none'" class="fa fa-remove w3-button w3-xlarge w3-right w3-transparent"></i>
+      <h1>Your Appointment Has Been Made!</h1>
+      <p><h3>We look foward to serving you soon.</h3></p>
+    </div>
+   </div>
+  </div>  
+
+<!-- checkbox function -->
+<script>
+function myFunction() {
+  // Get the checkbox
+  var checkBox = document.getElementById("myCheck");
+  // Get the output text
+  var text = document.getElementById("text");
+
+  // If the checkbox is checked, display the output text
+  if (checkBox.checked == true){
+    text.style.display = "block";
+  } else {
+    text.style.display = "none";
+  }
+}
+</script>
+
+
+<!--<div ng-controller="r_controller">
+  <table>
+    <tr ng-repeat="x in names">Locations Near You
+      <td><p><i class="material-icons">person</i>{{ x.facility_name }} <br> {{ x.facility_street }} <br> {{x.facility_city}} {{x.facility_state}} {{x.facility_zipcode}} <br> {{x.facility_website}} </p></td>
+    </tr>
+  </table>
+</div>-->
+
+<hr />
+ 
+
+<script>
+  /*search facility function*/
+var app = angular.module('myApp', []);
+app.controller('r_controller', function($scope, $http){
+  $scope.search = function(){
+   $http.get("mysql/facility")
+   .then(function (response) {
+      $scope.names = response.data;
+      // console.log(response.data);
+  });
+}
+});
+
+app.controller('c_controller', function($scope, $http) {
+  $scope.save = function () {
+    $http.post("mysql/facility", {"facility_name": $scope.facility_name, "facility_street": $scope.facility_street, "facility_city": $scope.facility_city, "facility_state": $scope.facility_state, "facility_zipcode": $scope.facility_zipcode, "facility_website": $scope.facility_website })
+    .then(function (response) {
+        // $scope.added = response.data;
+        $scope.results = response.data;
+        console.log(response.data);
+    });
+  }    
+});
+</script>
+ 
+</body>
+</html>
+
+
